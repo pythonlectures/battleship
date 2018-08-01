@@ -67,7 +67,7 @@ class Player:
 
     def call_your_shot(self):
         return tuple(int(x.strip()) for x in
-                     input('{}, call your shot using coma separated coordinates x, y: '.format(self.name)).split(','))
+                     input('{}, call your shot using comma separated coordinates x, y: '.format(self.name)).split(','))
 
     def has_lost(self):
         return all(ship.is_sunk for ship in self.ships)
