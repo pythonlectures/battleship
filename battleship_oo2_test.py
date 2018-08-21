@@ -29,7 +29,13 @@ class Game:
 
     def take_shot(self):
         shot = self.shooter.call_your_shot()
-        self.receiver.take_shot(shot)
+        for ship in self.receiver.get_ships():
+            if ship.is_hit(shot):
+                print('{}, your shot hit {}!'.format(self.shooter.name, ship.get_name()))
+                if ship.get_is_sunk():
+                    print('{} sunk!'.format(ship.get_name()))
+                return
+        print('{}, you missed your shot!'.format(self.shooter.name))
 
     def update_winner(self):
         if self._player1.has_lost():
@@ -48,8 +54,11 @@ class Player:
         self._ships = None
         self._board = None
 
-    def set_ships(self, ships):
-        self._ships = list(ships)
+    def set_ships(self, iter_ships: 'Iterator[Ship]'):
+        self._ships = list(iter_ships)
+
+    def get_ships(self):
+        return self._ships
 
     def set_board(self, board):
         self._board = board
@@ -58,18 +67,9 @@ class Player:
         coordinates = Coordinates(*(int(x.strip()) for x in
                                     input('{}, call your shot using comma separated coordinates x, y: '.format(
                                         self.name)).split(',')))
-        shot = Shot(coordinates=coordinates, shooter_name=self.name)
+        shot = Shot(coordinates=coordinates)
         self._board.shots_taken.add(shot)
         return shot
-
-    def take_shot(self, shot: 'Shot'):
-        for ship in self._ships:
-            if ship.is_hit(shot):
-                print('{}, your shot hit {}!'.format(self.name, ship.get_name()))
-                if ship.get_is_sunk():
-                    print('{} sunk!'.format(ship.get_name))
-            else:
-                print('{}, you missed your shot!'.format(self.name))
 
     def has_lost(self):
         return all(ship.get_is_sunk() for ship in self._ships)
@@ -116,7 +116,8 @@ class Board:
 
 
 Coordinates = NamedTuple('Coordinates', x=int, y=int)
-Shot = NamedTuple('Shot', coordinates=Coordinates, shooter_name=str)
+
+Shot = NamedTuple('Shot', coordinates=Coordinates)
 
 
 class Cell:
@@ -134,7 +135,8 @@ class Cell:
         if status in self._allowed_statuses:
             self._status = status
         else:
-            raise ValueError(type(self).__name__ + "supports only these statuses: " + ",".join(self._allowed_statuses))
+            raise ValueError(
+                type(self).__name__ + " supports only these statuses: " + ", ".join(self._allowed_statuses))
 
     def get_coordinates(self):
         return self._coordinates
@@ -143,11 +145,11 @@ class Cell:
 def mock_game():
     board_len = 9
     player1 = Player("Jack")
-    player1.set_ships([Ship([Coordinates(1, 1), Coordinates(1, 2)]), Ship([Coordinates(4, 5), Coordinates(4, 6)])])
+    player1.set_ships([Ship((Coordinates(1, 1), Coordinates(1, 2))), Ship([Coordinates(4, 5), Coordinates(4, 6)])])
     player1.set_board(Board(board_len))
     player2 = Player("Jill")
     player2.set_board(Board(board_len))
-    player2.set_ships([Ship([Coordinates(6, 5), Coordinates(6, 6)]), Ship([Coordinates(7, 7), Coordinates(8, 7)])])
+    player2.set_ships((Ship([Coordinates(6, 5), Coordinates(6, 6)]), Ship([Coordinates(7, 7), Coordinates(8, 7)])))
     Game(player1, player2).play_game()
 
 
