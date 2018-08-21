@@ -68,10 +68,11 @@ class Player:
                 print('{}, your shot hit {}!'.format(self.name, ship.get_name()))
                 if ship.get_is_sunk():
                     print('{} sunk!'.format(ship.get_name))
-        print('{}, you missed your shot!'.format(self.name))
+            else:
+                print('{}, you missed your shot!'.format(self.name))
 
     def has_lost(self):
-        return all(ship.is_sunk for ship in self._ships)
+        return all(ship.get_is_sunk() for ship in self._ships)
 
 
 class Ship:
