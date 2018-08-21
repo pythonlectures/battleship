@@ -11,8 +11,8 @@ class Game:
         self._player1 = player1
         self._player2 = player2
         self._winner = None
-        self.shooter = self._player1
-        self.receiver = self._player2
+        self._shooter = self._player1
+        self._receiver = self._player2
 
     def play_game(self):
         while self._winner is None:
@@ -22,20 +22,20 @@ class Game:
         self.declare_winner()
 
     def alternate_turns(self):
-        self.shooter, self.receiver = self.receiver, self.shooter
+        self._shooter, self._receiver = self._receiver, self._shooter
 
     def declare_winner(self):
-        print('{}, you won the game!'.format(self._winner.name))
+        print('{}, you won the game!'.format(self._winner.get_name()))
 
     def take_shot(self):
-        shot = self.shooter.call_your_shot()
-        for ship in self.receiver.get_ships():
+        shot = self._shooter.call_your_shot()
+        for ship in self._receiver.get_ships():
             if ship.is_hit(shot):
-                print('{}, your shot hit {}!'.format(self.shooter.name, ship.get_name()))
+                print('{}, your shot hit {}!'.format(self._shooter.get_name(), ship.get_name()))
                 if ship.get_is_sunk():
                     print('{} sunk!'.format(ship.get_name()))
                 return
-        print('{}, you missed your shot!'.format(self.shooter.name))
+        print('{}, you missed your shot!'.format(self._shooter.get_name()))
 
     def update_winner(self):
         if self._player1.has_lost():
@@ -50,7 +50,7 @@ class Player:
     """
 
     def __init__(self, name: str):
-        self.name = name
+        self._name = name
         self._ships = None
         self._board = None
 
@@ -63,12 +63,15 @@ class Player:
     def set_board(self, board):
         self._board = board
 
+    def get_name(self):
+        return self._name
+
     def call_your_shot(self):
         coordinates = Coordinates(*(int(x.strip()) for x in
                                     input('{}, call your shot using comma separated coordinates x, y: '.format(
-                                        self.name)).split(',')))
+                                        self._name)).split(',')))
         shot = Shot(coordinates=coordinates)
-        self._board.shots_taken.add(shot)
+        self._board.add_shot(shot)
         return shot
 
     def has_lost(self):
@@ -108,11 +111,11 @@ class Board:
     """This class keeps track of the shots taken by a Player """
 
     def __init__(self, board_len: int):
-        self.coordinates = [Coordinates(x=x, y=y) for x in range(1, board_len) for y in range(1, board_len)]
-        self.shots_taken = set()
+        self._coordinates = [Coordinates(x=x, y=y) for x in range(1, board_len) for y in range(1, board_len)]
+        self._shots_taken = set()
 
-    def take_shot(self, shot):
-        self.shots_taken.add(shot)
+    def add_shot(self, shot):
+        self._shots_taken.add(shot)
 
 
 Coordinates = NamedTuple('Coordinates', x=int, y=int)

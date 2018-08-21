@@ -30,7 +30,7 @@ class Game:
         print('{}, you won the game!'.format(self.winner.name))
 
     def take_shot(self, shot):
-        ship_hit = self.board.take_shot(shot)
+        ship_hit = self.board.add_shot(shot)
         if ship_hit:
             print('{}, your shot hit {}!'.format(self.player_takes_turn.name, ship_hit.name))
             self.winner = self.player2
