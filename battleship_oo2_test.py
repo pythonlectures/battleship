@@ -16,18 +16,18 @@ class Game:
 
     def play_game(self):
         while self._winner is None:
-            self.take_shot()
-            self.update_winner()
-            self.alternate_turns()
-        self.declare_winner()
+            self._take_shot()
+            self._update_winner()
+            self._alternate_turns()
+        self._declare_winner()
 
-    def alternate_turns(self):
+    def _alternate_turns(self):
         self._shooter, self._receiver = self._receiver, self._shooter
 
-    def declare_winner(self):
+    def _declare_winner(self):
         print('{}, you won the game!'.format(self._winner.get_name()))
 
-    def take_shot(self):
+    def _take_shot(self):
         shot = self._shooter.call_your_shot()
         for ship in self._receiver.get_ships():
             if ship.is_hit(shot):
@@ -37,7 +37,7 @@ class Game:
                 return
         print('{}, you missed your shot!'.format(self._shooter.get_name()))
 
-    def update_winner(self):
+    def _update_winner(self):
         if self._player1.has_lost():
             self._winner = self._player2
         elif self._player2.has_lost():
@@ -143,6 +143,8 @@ class Cell:
 
     def get_coordinates(self):
         return self._coordinates
+
+
 
 
 def mock_game():
