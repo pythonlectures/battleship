@@ -118,6 +118,7 @@ Coordinates = NamedTuple('Coordinates', x=int, y=int)
 
 Shot = NamedTuple('Shot', coordinates=Coordinates)
 
+
 class CellStatus(Enum):
     UNDISCOVERED = auto()
     HIT = auto()
@@ -138,10 +139,12 @@ class Cell:
             self._status = status
         else:
             raise ValueError(
-                type(self).__name__ + " supports only these statuses: " + ", ".join(status for status in CellStatus.name))
+                type(self).__name__ + " supports only these statuses: " + ", ".join(
+                    status for status in CellStatus.name))
 
     def get_coordinates(self):
         return self._coordinates
+
 
 def mock_game():
     board_len = 9
