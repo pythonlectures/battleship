@@ -72,7 +72,6 @@ class Player:
                                     input('{}, call your shot using comma separated coordinates x, y: '.format(
                                         self._name)).split(',')))
         shot = Shot(coordinates=coordinates)
-        self._board.add_shot(shot)
         return shot
 
     def has_lost(self):
@@ -101,7 +100,7 @@ class Ship:
     def is_hit(self, shot: 'Shot'):
         for cell in self._cells:
             if cell.get_coordinates() == shot.coordinates:
-                if cell.get_status() is CellStatus.NOT_HIT:
+                if cell.get_status() is not CellStatus.HIT:
                     cell.set_status(CellStatus.HIT)
                     self.update_is_sunk()
                     return True
@@ -112,11 +111,7 @@ class Board:
     """This class keeps track of the shots taken by a Player """
 
     def __init__(self, board_len: int):
-        self._coordinates = [Coordinates(x=x, y=y) for x in range(1, board_len) for y in range(1, board_len)]
-        self._shots_taken = set()
-
-    def add_shot(self, shot):
-        self._shots_taken.add(shot)
+        self._cells = [Cell(Coordinates(x=x, y=y)) for x in range(1, board_len) for y in range(1, board_len)]
 
 
 Coordinates = NamedTuple('Coordinates', x=int, y=int)
@@ -124,8 +119,8 @@ Coordinates = NamedTuple('Coordinates', x=int, y=int)
 Shot = NamedTuple('Shot', coordinates=Coordinates)
 
 class CellStatus(Enum):
+    UNDISCOVERED = auto()
     HIT = auto()
-    NOT_HIT = auto()
 
 
 class Cell:
@@ -133,12 +128,12 @@ class Cell:
 
     def __init__(self, coordinates: 'Coordinates'):
         self._coordinates = coordinates
-        self._status = CellStatus.NOT_HIT
+        self._status = CellStatus.UNDISCOVERED
 
     def get_status(self):
         return self._status
 
-    def set_status(self, status: str):
+    def set_status(self, status: CellStatus):
         if status in CellStatus:
             self._status = status
         else:
