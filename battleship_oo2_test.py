@@ -1,4 +1,5 @@
 from typing import NamedTuple, Iterator
+from enum import Enum, auto
 
 
 class Game:
@@ -85,11 +86,11 @@ class Ship:
     def __init__(self, iter_coordinates: 'Iterator[Coordinates]'):
         Ship.id_counter += 1
         self._name = "Ship{}".format(Ship.id_counter)
-        self._cells = [Cell(coordinates, status='Not Hit') for coordinates in iter_coordinates]
+        self._cells = [Cell(coordinates) for coordinates in iter_coordinates]
         self._is_sunk = False
 
     def update_is_sunk(self):
-        self._is_sunk = all(cell.get_status() == "Hit" for cell in self._cells)
+        self._is_sunk = all(cell.get_status() is CellStatus.HIT for cell in self._cells)
 
     def get_is_sunk(self):
         return self._is_sunk
@@ -100,8 +101,8 @@ class Ship:
     def is_hit(self, shot: 'Shot'):
         for cell in self._cells:
             if cell.get_coordinates() == shot.coordinates:
-                if cell.get_status() == 'Not Hit':
-                    cell.set_status("Hit")
+                if cell.get_status() is CellStatus.NOT_HIT:
+                    cell.set_status(CellStatus.HIT)
                     self.update_is_sunk()
                     return True
         return False
@@ -122,30 +123,30 @@ Coordinates = NamedTuple('Coordinates', x=int, y=int)
 
 Shot = NamedTuple('Shot', coordinates=Coordinates)
 
+class CellStatus(Enum):
+    HIT = auto()
+    NOT_HIT = auto()
+
 
 class Cell:
     """ This class contains the coordinates of a single cell, and keeps track if it has been hit """
 
-    def __init__(self, coordinates: 'Coordinates', status: str = None):
+    def __init__(self, coordinates: 'Coordinates'):
         self._coordinates = coordinates
-        self._status = status
-        self._allowed_statuses = {'Hit', 'Not Hit'}
+        self._status = CellStatus.NOT_HIT
 
     def get_status(self):
         return self._status
 
     def set_status(self, status: str):
-        if status in self._allowed_statuses:
+        if status in CellStatus:
             self._status = status
         else:
             raise ValueError(
-                type(self).__name__ + " supports only these statuses: " + ", ".join(self._allowed_statuses))
+                type(self).__name__ + " supports only these statuses: " + ", ".join(status for status in CellStatus.name))
 
     def get_coordinates(self):
         return self._coordinates
-
-
-
 
 def mock_game():
     board_len = 9
