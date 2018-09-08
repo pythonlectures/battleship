@@ -1,5 +1,5 @@
 import pytest
-import battleship_oo2 as btl
+from battleship import battleship_oo2 as btl
 
 
 @pytest.fixture
