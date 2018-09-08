@@ -68,9 +68,14 @@ class Player:
         return self._name
 
     def call_your_shot(self):
-        coordinates = Coordinates(*(int(x.strip()) for x in
-                                    input('{}, call your shot using comma separated coordinates x, y: '.format(
-                                        self._name)).split(',')))
+        print('{}, call your shot using comma separated coordinates x, y: '.format(self._name))
+        while True:
+            try:
+                coordinates = Coordinates(*(int(x.strip()) for x in
+                                            input().split(',')))
+                break
+            except (TypeError, ValueError):
+                print("Please try again, you must input two integers separated by a comma")
         shot = Shot(coordinates=coordinates)
         return shot
 
@@ -85,10 +90,10 @@ class Ship:
     def __init__(self, iter_coordinates: 'Iterator[Coordinates]'):
         Ship.id_counter += 1
         self._name = "Ship{}".format(Ship.id_counter)
-        self._cells = [Cell(coordinates) for coordinates in iter_coordinates]
+        self._cells = [Cell(coordinates, CellStatus.UNDISCOVERED) for coordinates in iter_coordinates]
         self._is_sunk = False
 
-    def update_is_sunk(self):
+    def _update_is_sunk(self):
         self._is_sunk = all(cell.get_status() is CellStatus.HIT for cell in self._cells)
 
     def get_is_sunk(self):
@@ -102,7 +107,7 @@ class Ship:
             if cell.get_coordinates() == shot.coordinates:
                 if cell.get_status() is not CellStatus.HIT:
                     cell.set_status(CellStatus.HIT)
-                    self.update_is_sunk()
+                    self._update_is_sunk()
                     return True
         return False
 
@@ -127,9 +132,9 @@ class CellStatus(Enum):
 class Cell:
     """ This class contains the coordinates of a single cell, and keeps track if it has been hit """
 
-    def __init__(self, coordinates: 'Coordinates'):
+    def __init__(self, coordinates: 'Coordinates', status=CellStatus.UNDISCOVERED):
         self._coordinates = coordinates
-        self._status = CellStatus.UNDISCOVERED
+        self._status = status
 
     def get_status(self):
         return self._status
@@ -138,9 +143,7 @@ class Cell:
         if status in CellStatus:
             self._status = status
         else:
-            raise ValueError(
-                type(self).__name__ + " supports only these statuses: " + ", ".join(
-                    status for status in CellStatus.name))
+            raise ValueError(type(self).__name__ + " supports only CellStatus ")
 
     def get_coordinates(self):
         return self._coordinates
