@@ -1,6 +1,5 @@
 import pytest
-from battleship import battleship_oo2 as btl
-
+import battleship.battleship_oo2 as btl
 
 @pytest.fixture
 def a_cell_hit():
